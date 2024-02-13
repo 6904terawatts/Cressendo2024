@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -15,7 +16,7 @@ public class DriveTrain extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
 
 
-
+// private TalonFX rightLeaderMotor, rightFollowMotor, leftLeaderMotor, leftFollowMotor;
 
   private final TalonFX[] motors = {
   new TalonFX(Constants.leftBackMotorId),
@@ -32,15 +33,23 @@ for (TalonFX motor : motors) {
 motors[1].setInverted(true);
 motors[3].setInverted(true);
 
+// rightLeaderMotor = motors[1];
+// rightFollowMotor = motors[2];
+// leftLeaderMotor = motors[3];
+// leftFollowMotor = motors[4];
+
+motors[2].set(motors[0].getDeviceID());
+motors[3].set(motors[1].getDeviceID());
+
 
 // motors[2].follow(motors[0]);
 // motors[3].follow(motors[1]);
 
 
 
-motors[2].set(motors[0].getDeviceID());
-motors[3].set(motors[1].getDeviceID());
-
+// motors[2].set(motors[0].getDeviceID());
+// motors[3].set(motors[1].getDeviceID());
+ 
 
   }
 
@@ -62,8 +71,8 @@ motors[3].set(motors[1].getDeviceID());
   }
 
   public void setPercentOutput(double leftOutput, double rightOutput) {
-  motors[0].set(leftOutput);
-  motors[1].set(rightOutput);
+    motors[0].set(leftOutput);
+    motors[1].set(rightOutput);
 }
 
 
