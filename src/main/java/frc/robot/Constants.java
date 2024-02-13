@@ -22,4 +22,52 @@ public static final int leftBackMotorId = 24;
 public static final int leftJoystickId = 1;
 public static final int rightJoystickId = 2;
 public static final double kArcadeDeadBand = .2;
+
+public static final int intakeSpeed = -1;
+public static final int hookMotorId = 7;
+public static final double hookUpSpeed = .5;
+public static final double hookDownSpeed = -.5;
+
+public static class OperatorConstants {
+    // Port numbers for driver and operator gamepads. These correspond with the numbers on the USB
+    // tab of the DriverStation
+    public static final int kOperatorControllerPort = 1;
+
+
+  }
+
+
+public static class LauncherConstants {
+    // PWM ports/CAN IDs for motor controllers
+    public static final int kFeederID = 5;
+    public static final int kLauncherID = 6;
+
+    // Current limit for launcher and feed wheels
+    public static final int kLauncherCurrentLimit = 80;
+    public static final int kFeedCurrentLimit = 80;
+
+    // Speeds for wheels when intaking and launching. Intake speeds are negative to run the wheels
+    // in reverse
+    public static final double kLauncherSpeed = 1;
+    public static final double kLaunchFeederSpeed = 1;
+    public static final double kIntakeLauncherSpeed = -1;
+    public static final double kIntakeFeederSpeed = -.2;
+
+    public static final double kLauncherDelay = 1;
+  }
+
+ 
+public static class intakeConstants{
+
+
+  public static final double intakeSpeed = -1;
+  public static final int kFeederID = 5;
+
+}
+
+  
+
+  
+
+
 }

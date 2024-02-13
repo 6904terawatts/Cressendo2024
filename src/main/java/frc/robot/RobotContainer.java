@@ -5,15 +5,22 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.Autos;
-import frc.robot.commands.DriveForwrd;
-import frc.robot.commands.ExampleCommand;
+import frc.robot.Constants.LauncherConstants;
+import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.LaunchNote;
+import frc.robot.commands.MoveHookCommand;
+import frc.robot.commands.PrepareLaunch;
 import frc.robot.commands.SetArcadeDrive;
+import frc.robot.commands.noteAuto;
 import frc.robot.subsystems.DriveTrain;
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.HookSubsystem;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.PWMLauncher;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -23,19 +30,21 @@ import frc.robot.subsystems.ExampleSubsystem;
  */
 public class RobotContainer {
 
-
+private final PWMLauncher m_launcher = new PWMLauncher();
+private final Intake m_Intake = new Intake();
   private final DriveTrain m_driveTrain = new DriveTrain();
-
+private final HookSubsystem m_hook = new HookSubsystem();
   private final static Joystick leftJoystick = new Joystick(Constants.leftJoystickId);
   private final static Joystick rightJoystick = new Joystick(Constants.rightJoystickId);
 
 
+private final CommandXboxController m_operatorController =
+      new CommandXboxController(OperatorConstants.kOperatorControllerPort);
 
 
 
 
-  // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+  
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   
@@ -64,8 +73,30 @@ public class RobotContainer {
    */
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new Trigger(m_exampleSubsystem::exampleCondition)
-        .onTrue(new ExampleCommand(m_exampleSubsystem));
+     /*Create an inline sequence to run when the operator presses and holds the A (green) button. Run the PrepareLaunch
+     * command for 1 seconds and then run the LaunchNote command */
+    m_operatorController
+        .a()
+        .whileTrue(new PrepareLaunch(m_launcher).withTimeout(LauncherConstants.kLauncherDelay).andThen(new LaunchNote(m_launcher)).handleInterrupt(() -> m_launcher.stop()));
+
+
+
+// Set up a binding to run the intake command while the operator is pressing and holding the
+    // left Bumper
+    m_operatorController.leftBumper().whileTrue(m_launcher.getIntakeCommand());
+
+    m_operatorController.rightBumper().whileTrue(m_Intake.getIntakeCommand());
+
+    // Create a button for moving the hook up
+m_operatorController
+.b()
+.whileTrue(new MoveHookCommand(m_hook, true)); // true indicates moving the hook up
+
+// Create a button for moving the hook down
+m_operatorController
+.x()
+.whileTrue(new MoveHookCommand(m_hook, false)); // false indicates moving the hook down
+
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
@@ -80,6 +111,6 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     
     // An example command will be run in autonomous
-     return new DriveForwrd(m_driveTrain);
+     return new noteAuto(m_launcher, m_driveTrain);
   }
 }
