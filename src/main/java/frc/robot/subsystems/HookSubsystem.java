@@ -4,26 +4,20 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 
-public class HookSubsystem extends SubsystemBase {
-    private final PWMSparkMax hookMotor;
+public class HookSubsystem extends SubsystemBase{
+    
+ private final DoubleSolenoid clawSolenoid =
+ new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
 
-    public HookSubsystem() {
-        hookMotor = new PWMSparkMax(Constants.hookMotorId);
-    }
+ public HookSubsystem() {
 
-    public void moveUp() {
-        hookMotor.set(Constants.hookUpSpeed);
-    }
+ }
 
-    public void moveDown() {
-        hookMotor.set(Constants.hookDownSpeed);
-    }
-
-    public void stop() {
-        hookMotor.set(0);
-    }
+ public void sethook(DoubleSolenoid.Value value) {
+    clawSolenoid.set(value);
+ }
 }

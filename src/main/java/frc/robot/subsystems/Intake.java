@@ -3,10 +3,9 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.subsystems;
-
-
-import static frc.robot.Constants.intakeConstants;
-import static frc.robot.Constants.intakeSpeed;
+import static frc.robot.Constants.intakeConstants.intakeSpeed;
+import static frc.robot.Constants.LauncherConstants.kFeederID;
+import static frc.robot.Constants.LauncherConstants.kIntakeFeederSpeed;
 
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -14,11 +13,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
 
-
-
 PWMSparkMax m_IntakeWheels1;
 PWMSparkMax m_IntakeWheels2;
-  
+PWMSparkMax m_feedWheel;
 
 
   /** Creates a new ExampleSubsystem. */
@@ -29,7 +26,7 @@ PWMSparkMax m_IntakeWheels2;
 
     m_IntakeWheels1.setInverted(true);
 
-
+   
   
   }
 
@@ -45,20 +42,36 @@ PWMSparkMax m_IntakeWheels2;
         // When the command is initialized, set the wheels to the intake speed values
         () -> {
           setIntakeWheels(intakeSpeed);
+          setFeedWheel(kIntakeFeederSpeed);
         },
         // When the command stops, stop the wheels
         () -> {
           stop();
         });
+
   }
 
-
+      
    // An accessor method to set the speed (technically the output percentage) of the launch wheel
    public void setIntakeWheels(double speed) {
     m_IntakeWheels1.set(speed);
     m_IntakeWheels2.set(speed);
   }
-
+  public Command getReverseIntakeCommand() {
+          // The startEnd helper method takes a method to call when the command is initialized and one to
+          // call when it ends
+          return this.startEnd(
+              // When the command is initialized, set the wheels to the intake speed values
+              () -> {
+                setIntakeWheels(-intakeSpeed);
+                
+              },
+              // When the command stops, stop the wheels
+              () -> {
+                stop();
+              });
+              
+            }
   // An accessor method to set the speed (technically the output percentage) of the feed wheel
  
   /**
@@ -70,6 +83,9 @@ PWMSparkMax m_IntakeWheels2;
     m_IntakeWheels1.set(0);
     m_IntakeWheels2.set(0);
 
+  }
+  public void setFeedWheel(double speed) {
+    m_feedWheel.set(speed);
   }
 
   @Override
