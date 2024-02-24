@@ -25,7 +25,7 @@ public class noteAuto extends Command {
         // Initialize the launcher and drive subsystems
         launcherSubsystem.setLaunchWheel(1.0); // Assuming 1.0 is full speed
         launcherSubsystem.setFeedWheel(1.0);   // Assuming 1.0 is full speed
-        driveSubsystem.setPercentOutput(-0.5, -0.5); // Assuming -0.5 is a backward speed
+        driveSubsystem.arcadeDrive(-0.5, -0.5); // Assuming -0.5 is a backward speed
     }
 
     @Override
@@ -37,7 +37,7 @@ public class noteAuto extends Command {
     public void end(boolean interrupted) {
         // Stop the launcher and drive subsystems
         launcherSubsystem.stop();
-        driveSubsystem.setPercentOutput(0, 0);
+        driveSubsystem.arcadeDrive(0, 0);
     }
 
     @Override

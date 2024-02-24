@@ -40,7 +40,7 @@ public class SetArcadeDrive extends Command {
   @Override
   public void execute() {
 
-    m_driveTrain.setArcadeDrive(-m_leftOutput.getAsDouble(), m_rightOutput.getAsDouble());
+    m_driveTrain.arcadeDrive(-m_leftOutput.getAsDouble(), m_rightOutput.getAsDouble());
   }
 
   // Called once the command ends or is interrupted.
