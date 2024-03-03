@@ -6,18 +6,32 @@ package frc.robot.subsystems;
 
 import static frc.robot.Constants.LauncherConstants.*;
 
+import com.revrobotics.CANSparkMax;
+import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.revrobotics.CANSparkLowLevel.MotorType;
+
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.CtreUtils;
 
 public class PWMLauncher extends SubsystemBase {
-  PWMSparkMax m_launchWheel;
-  PWMSparkMax m_feedWheel;
+  TalonFX m_launchWheel;
+  CANSparkMax m_feedWheel;
 
   /** Creates a new Launcher. */
   public PWMLauncher() {
-    m_launchWheel = new PWMSparkMax(kLauncherID);
-    m_feedWheel = new PWMSparkMax(kFeederID);
+    m_launchWheel = new TalonFX(kLauncherID);
+    m_feedWheel = new CANSparkMax(kFeederID, MotorType.kBrushless);
+
+TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+    CtreUtils.configureTalonFx(m_launchWheel, motorConfig);
   }
 
   /**
@@ -47,10 +61,41 @@ public class PWMLauncher extends SubsystemBase {
     m_launchWheel.set(speed);
   }
 
+  public static TalonFXConfiguration generateFXDriveMotorConfig() {
+    TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+
+    motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+    motorConfig.Slot0.kV = 0.1185;
+    motorConfig.Slot0.kP = 0.24;
+    motorConfig.Slot0.kI = 0.0;
+    motorConfig.Slot0.kD = 0.0;
+
+    motorConfig.Voltage.PeakForwardVoltage = 12;
+    motorConfig.Voltage.PeakReverseVoltage = -12;
+
+    motorConfig.CurrentLimits.SupplyCurrentLimit = 35;
+    motorConfig.CurrentLimits.SupplyCurrentThreshold = 60;
+    motorConfig.CurrentLimits.SupplyTimeThreshold = 0.1;
+    motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+    motorConfig.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.25; // TO
+    // DO adjust this later
+    motorConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.1; // TODO Adjust this later
+
+    motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+    return motorConfig;
+  }
+
+
   // An accessor method to set the speed (technically the output percentage) of the feed wheel
   public void setFeedWheel(double speed) {
     m_feedWheel.set(speed);
   }
+
+
+
 
   // A helper method to stop both wheels. You could skip having a method like this and call the
   // individual accessors with speed = 0 instead
