@@ -27,6 +27,7 @@ public static final double kArcadeDeadBand = .2;
 
 
 
+
 public static class OperatorConstants {
     // Port numbers for driver and operator gamepads. These correspond with the numbers on the USB
     // tab of the DriverStation
@@ -48,12 +49,21 @@ public static class LauncherConstants {
 
     // Speeds for wheels when intaking and launching. Intake speeds are negative to run the wheels
     // in reverse
-    public static final double kLauncherSpeed = 1;
-    public static final double kLaunchFeederSpeed = 1;
+    public static final double kLauncherSpeed = 1
+    ;
+    public static final double kLaunchFeederSpeed = 1
+
+    ;
     public static final double kIntakeLauncherSpeed = -1;
     public static final double kIntakeFeederSpeed = -.2;
 
-    public static final double kLauncherDelay = 1;
+    public static final double kLauncherDelay = 2;
+  
+
+    public static final double SHOOTER_kFF = 0.000082;
+    public static final double SHOOTER_kP = 4;
+    public static final int MOTOR_CURRENT_LIMIT = 40;
+    
   }
 
  

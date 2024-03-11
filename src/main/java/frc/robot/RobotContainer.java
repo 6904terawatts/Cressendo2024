@@ -5,24 +5,19 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.LauncherConstants;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Autos;
-import frc.robot.commands.DriveForward;
 import frc.robot.commands.LaunchNote;
 import frc.robot.commands.PrepareLaunch;
-import frc.robot.commands.RunFeedWheel;
 import frc.robot.commands.RunIntake;
 import frc.robot.commands.RunReverseIntake;
 import frc.robot.commands.SetArcadeDrive;
-import frc.robot.commands.noteAuto;
+import frc.robot.commands.Autos.noteAuto;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.HookSubsystem;
 import frc.robot.subsystems.Intake;
@@ -83,29 +78,30 @@ private final CommandXboxController m_operatorController =
      * command for 1 seconds and then run the LaunchNote command */
     m_operatorController
         .x()
-        .whileTrue(new PrepareLaunch(m_launcher).withTimeout(LauncherConstants.kLauncherDelay).andThen(new LaunchNote(m_launcher)).handleInterrupt(() -> m_launcher.stop()));
+        .whileTrue(new PrepareLaunch(m_launcher).withTimeout(LauncherConstants.kLauncherDelay).andThen(new LaunchNote(m_launcher).alongWith(new RunIntake(m_Intake, 1))).handleInterrupt(() -> m_launcher.stop()));
 
 
-
+    // .x()
+    //     .whileTrue(new PrepareLaunch(m_launcher).withTimeout(LauncherConstants.kLauncherDelay)
+    //     .andThen(new LaunchNote(m_launcher)).alongWith(new RunIntake(m_Intake, 1)))
+    //     .onFalse(new InstantCommand(() -> m_launcher.stop(), m_launcher));
 // Set up a binding to run the intake command while the operator is pressing and holding the
     // left Bumper
-    m_operatorController.y().whileTrue(m_launcher.getIntakeCommand());
+    
 
-    m_operatorController.rightBumper().whileTrue(new RunIntake(m_Intake, 1).alongWith(new RunFeedWheel(m_launcher, 1)));
+    m_operatorController.rightBumper().whileTrue(new RunIntake(m_Intake, 1));
     m_operatorController.leftBumper().whileTrue(new RunReverseIntake(m_Intake, 1));
   
 
     // Create a button for moving the hook up
-m_operatorController
-.b()
-.onTrue(new InstantCommand(()->m_hook.sethook(Value.kForward))); // true indicates moving the hook up
+// m_operatorController
+// .b()
+// .onTrue(new InstantCommand(()->m_hook.sethook(Value.kForward))); // true indicates moving the hook up
 
-// Create a button for moving the hook down
-m_operatorController
-.a()
-.onTrue(new InstantCommand(()->m_hook.sethook(Value.kReverse))); // false indicates moving the hook down
-
-
+// // Create a button for moving the hook down
+// m_operatorController
+// .a()
+// .onTrue(new InstantCommand(()->m_hook.sethook(Value.kReverse))); // false indicates moving the hook 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
   
@@ -119,7 +115,7 @@ m_operatorController
   public Command getAutonomousCommand() {
     
     // An example command will be run in autonomous
-    return new DriveForward(m_driveTrain);
+    return new noteAuto(m_launcher, m_driveTrain);
     }
   }
 
