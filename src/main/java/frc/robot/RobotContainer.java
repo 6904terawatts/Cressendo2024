@@ -5,18 +5,19 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.LauncherConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.LaunchNote;
-import frc.robot.commands.MoveHookCommand;
 import frc.robot.commands.PrepareLaunch;
+import frc.robot.commands.RunIntake;
+import frc.robot.commands.RunReverseIntake;
 import frc.robot.commands.SetArcadeDrive;
-import frc.robot.commands.noteAuto;
+import frc.robot.commands.Autos.noteAuto;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.HookSubsystem;
 import frc.robot.subsystems.Intake;
@@ -32,10 +33,10 @@ public class RobotContainer {
 
 private final PWMLauncher m_launcher = new PWMLauncher();
 private final Intake m_Intake = new Intake();
-  private final DriveTrain m_driveTrain = new DriveTrain();
+private final DriveTrain m_driveTrain = new DriveTrain();
 private final HookSubsystem m_hook = new HookSubsystem();
-  private final static Joystick leftJoystick = new Joystick(Constants.leftJoystickId);
-  private final static Joystick rightJoystick = new Joystick(Constants.rightJoystickId);
+private final static Joystick leftJoystick = new Joystick(Constants.leftJoystickId);
+private final static Joystick rightJoystick = new Joystick(Constants.rightJoystickId);
 
 
 private final CommandXboxController m_operatorController =
@@ -76,28 +77,31 @@ private final CommandXboxController m_operatorController =
      /*Create an inline sequence to run when the operator presses and holds the A (green) button. Run the PrepareLaunch
      * command for 1 seconds and then run the LaunchNote command */
     m_operatorController
-        .a()
-        .whileTrue(new PrepareLaunch(m_launcher).withTimeout(LauncherConstants.kLauncherDelay).andThen(new LaunchNote(m_launcher)).handleInterrupt(() -> m_launcher.stop()));
+        .x()
+        .whileTrue(new PrepareLaunch(m_launcher).withTimeout(LauncherConstants.kLauncherDelay).andThen(new LaunchNote(m_launcher).alongWith(new RunIntake(m_Intake, 1))).handleInterrupt(() -> m_launcher.stop()));
 
 
-
+    // .x()
+    //     .whileTrue(new PrepareLaunch(m_launcher).withTimeout(LauncherConstants.kLauncherDelay)
+    //     .andThen(new LaunchNote(m_launcher)).alongWith(new RunIntake(m_Intake, 1)))
+    //     .onFalse(new InstantCommand(() -> m_launcher.stop(), m_launcher));
 // Set up a binding to run the intake command while the operator is pressing and holding the
     // left Bumper
-    m_operatorController.leftBumper().whileTrue(m_launcher.getIntakeCommand());
+    
 
-    m_operatorController.rightBumper().whileTrue(m_Intake.getIntakeCommand());
+    m_operatorController.rightBumper().whileTrue(new RunIntake(m_Intake, 1));
+    m_operatorController.leftBumper().whileTrue(new RunReverseIntake(m_Intake, 1));
+  
 
     // Create a button for moving the hook up
-m_operatorController
-.b()
-.whileTrue(new MoveHookCommand(m_hook, true)); // true indicates moving the hook up
+// m_operatorController
+// .b()
+// .onTrue(new InstantCommand(()->m_hook.sethook(Value.kForward))); // true indicates moving the hook up
 
-// Create a button for moving the hook down
-m_operatorController
-.x()
-.whileTrue(new MoveHookCommand(m_hook, false)); // false indicates moving the hook down
-
-
+// // Create a button for moving the hook down
+// m_operatorController
+// .a()
+// .onTrue(new InstantCommand(()->m_hook.sethook(Value.kReverse))); // false indicates moving the hook 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
   
@@ -111,6 +115,7 @@ m_operatorController
   public Command getAutonomousCommand() {
     
     // An example command will be run in autonomous
-     return new noteAuto(m_launcher, m_driveTrain);
+    return new noteAuto(m_launcher, m_driveTrain);
+    }
   }
-}
+
