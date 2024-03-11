@@ -8,10 +8,6 @@ import static frc.robot.Constants.intakeConstants.intakeSpeed;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import static frc.robot.Constants.LauncherConstants.kFeederID;
-import static frc.robot.Constants.LauncherConstants.kIntakeFeederSpeed;
-
-import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -31,6 +27,8 @@ CANSparkMax m_feedWheel;
     m_IntakeWheels2.restoreFactoryDefaults();
     // m_feedWheel = new PWMSparkMax(kFeederID);
     m_IntakeWheels1.setInverted(true);
+    m_IntakeWheels1.burnFlash();
+    m_IntakeWheels2.burnFlash(); 
 
    
   
