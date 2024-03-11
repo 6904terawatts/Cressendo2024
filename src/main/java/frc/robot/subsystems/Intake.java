@@ -3,62 +3,56 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.subsystems;
+import static frc.robot.Constants.intakeConstants.intakeSpeed;
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import static frc.robot.Constants.intakeConstants;
-import static frc.robot.Constants.intakeSpeed;
-
-import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
 
-
-
-PWMSparkMax m_IntakeWheels1;
-PWMSparkMax m_IntakeWheels2;
-  
+CANSparkMax m_IntakeWheels1;
+CANSparkMax m_IntakeWheels2;
+CANSparkMax m_feedWheel;
 
 
   /** Creates a new ExampleSubsystem. */
   public Intake() {
     
-    m_IntakeWheels1 = new PWMSparkMax(4);
-    m_IntakeWheels2 = new PWMSparkMax(3);
-
+    m_IntakeWheels1 = new CANSparkMax(3, MotorType.kBrushless);
+    m_IntakeWheels2 = new CANSparkMax(4,MotorType.kBrushless);
+    m_IntakeWheels1.restoreFactoryDefaults();
+    m_IntakeWheels2.restoreFactoryDefaults();
+    // m_feedWheel = new PWMSparkMax(kFeederID);
     m_IntakeWheels1.setInverted(true);
+    m_IntakeWheels1.burnFlash();
+    m_IntakeWheels2.burnFlash(); 
 
-
+   
   
   }
 
-  /**
-   * Example command factory method.
-   *
-   * @return a command
-   */
-  public Command getIntakeCommand() {
-    // The startEnd helper method takes a method to call when the command is initialized and one to
-    // call when it ends
-    return this.startEnd(
-        // When the command is initialized, set the wheels to the intake speed values
-        () -> {
-          setIntakeWheels(intakeSpeed);
-        },
-        // When the command stops, stop the wheels
-        () -> {
-          stop();
-        });
-  }
-
-
+      
    // An accessor method to set the speed (technically the output percentage) of the launch wheel
-   public void setIntakeWheels(double speed) {
-    m_IntakeWheels1.set(speed);
-    m_IntakeWheels2.set(speed);
-  }
+   
 
+  public Command getReverseIntakeCommand() {
+          // The startEnd helper method takes a method to call when the command is initialized and one to
+          // call when it ends
+          return this.startEnd(
+              // When the command is initialized, set the wheels to the intake speed values
+              () -> {
+                setIntakeWheels(-intakeSpeed);
+                
+              },
+              // When the command stops, stop the wheels
+              () -> {
+                stop();
+              });
+              
+            }
   // An accessor method to set the speed (technically the output percentage) of the feed wheel
  
   /**
@@ -71,6 +65,14 @@ PWMSparkMax m_IntakeWheels2;
     m_IntakeWheels2.set(0);
 
   }
+  public void setIntakeWheels(double speed) {
+    System.out.println("Intake is running");
+    m_IntakeWheels1.set(speed);
+    m_IntakeWheels2.set(speed);
+  }
+  // public void setFeedWheel(double speed) {
+  //   m_feedWheel.set(speed);
+  // }
 
   @Override
   public void periodic() {

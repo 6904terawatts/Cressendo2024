@@ -7,31 +7,59 @@ package frc.robot.subsystems;
 import static frc.robot.Constants.LauncherConstants.*;
 
 import com.revrobotics.CANSparkMax;
-import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkPIDController;
+import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.PIDSubsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.CtreUtils;
+import frc.robot.Constants;
 
-public class PWMLauncher extends SubsystemBase {
-  TalonFX m_launchWheel;
-  CANSparkMax m_feedWheel;
+public class PWMLauncher extends SubsystemBase  {
 
-  /** Creates a new Launcher. */
+  RelativeEncoder m_shooterEncoder;
+  CANSparkMax m_launchWheel = new CANSparkMax(Constants.LauncherConstants.kLauncherID, MotorType.kBrushless);
+  CANSparkMax m_feedWheel = new CANSparkMax(Constants.LauncherConstants.kFeederID, MotorType.kBrushless);
+
+   SparkPIDController m_shooterPID = m_launchWheel.getPIDController();
+
+  PIDController Launcher = new PIDController(Constants.LauncherConstants.SHOOTER_kP, 0, 0);
+  // /** Creates a new Launcher. */
   public PWMLauncher() {
-    m_launchWheel = new TalonFX(kLauncherID);
-    m_feedWheel = new CANSparkMax(kFeederID, MotorType.kBrushless);
+    // m_launchWheel = new CANSparkMax(kLauncherID, MotorType.kBrushless);
+    // m_feedWheel = new CANSparkMax(kFeederID, MotorType.kBrushless);
 
-TalonFXConfiguration motorConfig = new TalonFXConfiguration();
-    CtreUtils.configureTalonFx(m_launchWheel, motorConfig);
+    m_launchWheel.restoreFactoryDefaults();
+    m_launchWheel.setSmartCurrentLimit(Constants.LauncherConstants.MOTOR_CURRENT_LIMIT);
+    m_launchWheel.setInverted(false);
+    m_launchWheel.setIdleMode(CANSparkMax.IdleMode.kCoast);
+    
+    m_shooterEncoder = m_launchWheel.getEncoder();
+    // m_shooterEncoder.setVelocityConversionFactor(3);
+    m_shooterPID.setFeedbackDevice(m_shooterEncoder);
+    m_shooterPID.setP(Constants.LauncherConstants.SHOOTER_kP);
+
+    m_launchWheel.burnFlash();
+
+    m_feedWheel.restoreFactoryDefaults();
+    m_feedWheel.setSmartCurrentLimit(Constants.LauncherConstants.MOTOR_CURRENT_LIMIT);
+    m_feedWheel.setInverted(false);
+    m_feedWheel.setIdleMode(CANSparkMax.IdleMode.kCoast);
+    m_feedWheel.burnFlash();
+
+
+  }
+
+  public void periodic() {
+    // This method will be called once per scheduler run
+    super.periodic();
+    getMeasurement();
+    SmartDashboard.putNumber("Shooter output", m_launchWheel.get());
+   SmartDashboard.putNumber("Shooter Setpoint", Launcher.getSetpoint()); 
   }
 
   /**
@@ -56,37 +84,19 @@ TalonFXConfiguration motorConfig = new TalonFXConfiguration();
         });
   }
 
+
+
+  public void useOutput( double setpoint) {
+    // Use the output here
+    m_shooterPID.setReference(setpoint, ControlType.kVelocity);
+    System.out.println("Setting Shooter Setpoint");
+  }
   // An accessor method to set the speed (technically the output percentage) of the launch wheel
   public void setLaunchWheel(double speed) {
     m_launchWheel.set(speed);
   }
 
-  public static TalonFXConfiguration generateFXDriveMotorConfig() {
-    TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
-    motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-    motorConfig.Slot0.kV = 0.1185;
-    motorConfig.Slot0.kP = 0.24;
-    motorConfig.Slot0.kI = 0.0;
-    motorConfig.Slot0.kD = 0.0;
-
-    motorConfig.Voltage.PeakForwardVoltage = 12;
-    motorConfig.Voltage.PeakReverseVoltage = -12;
-
-    motorConfig.CurrentLimits.SupplyCurrentLimit = 35;
-    motorConfig.CurrentLimits.SupplyCurrentThreshold = 60;
-    motorConfig.CurrentLimits.SupplyTimeThreshold = 0.1;
-    motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-
-    motorConfig.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.25; // TO
-    // DO adjust this later
-    motorConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.1; // TODO Adjust this later
-
-    motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-
-    return motorConfig;
-  }
 
 
   // An accessor method to set the speed (technically the output percentage) of the feed wheel
@@ -100,7 +110,22 @@ TalonFXConfiguration motorConfig = new TalonFXConfiguration();
   // A helper method to stop both wheels. You could skip having a method like this and call the
   // individual accessors with speed = 0 instead
   public void stop() {
+    System.out.println("Stopping PWMLauncher");
     m_launchWheel.set(0);
     m_feedWheel.set(0);
   }
+
+  public double getLaunchWheelVelocity() {
+    return m_launchWheel.getEncoder().getVelocity();
+  }
+
+  public double getFeedWheelVelocity() {
+    return m_feedWheel.getEncoder().getVelocity();
+  }
+
+  public double getMeasurement() {
+    SmartDashboard.putNumber("SHOOTER RPM", getLaunchWheelVelocity());
+    return getFeedWheelVelocity();
+  }
+
 }
