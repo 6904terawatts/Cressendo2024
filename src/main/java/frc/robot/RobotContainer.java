@@ -88,6 +88,7 @@ private final CommandXboxController m_operatorController =
 // Set up a binding to run the intake command while the operator is pressing and holding the
     // left Bumper
     
+    m_operatorController.y().whileTrue(m_launcher.getIntakeCommand());
 
     m_operatorController.rightBumper().whileTrue(new RunIntake(m_Intake, 1));
     m_operatorController.leftBumper().whileTrue(new RunReverseIntake(m_Intake, 1));
