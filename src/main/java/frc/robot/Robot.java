@@ -85,6 +85,10 @@ VideoSink server;
     autoTimer.reset();
     autoTimer.start();
     // schedule the autonomous command (example)
+
+     if (m_autonomousCommand != null) {
+      m_autonomousCommand.schedule();
+    }
     
   }
 
@@ -101,9 +105,7 @@ VideoSink server;
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
-    }
+   
   }
 
   /** This function is called periodically during operator control. */

@@ -77,14 +77,14 @@ private final CommandXboxController m_operatorController =
      /*Create an inline sequence to run when the operator presses and holds the A (green) button. Run the PrepareLaunch
      * command for 1 seconds and then run the LaunchNote command */
     m_operatorController
-        .x()
-        .whileTrue(new PrepareLaunch(m_launcher).withTimeout(LauncherConstants.kLauncherDelay).andThen(new LaunchNote(m_launcher).alongWith(new RunIntake(m_Intake, 1))).handleInterrupt(() -> m_launcher.stop()));
+        // .x()
+        // .whileTrue(new PrepareLaunch(m_launcher).withTimeout(LauncherConstants.kLauncherDelay).andThen(new LaunchNote(m_launcher).alongWith(new RunIntake(m_Intake, 1))).handleInterrupt(() -> m_launcher.stop()));
 
 
-    // .x()
-    //     .whileTrue(new PrepareLaunch(m_launcher).withTimeout(LauncherConstants.kLauncherDelay)
-    //     .andThen(new LaunchNote(m_launcher)).alongWith(new RunIntake(m_Intake, 1)))
-    //     .onFalse(new InstantCommand(() -> m_launcher.stop(), m_launcher));
+    .x()
+        .whileTrue(new PrepareLaunch(m_launcher).withTimeout(LauncherConstants.kLauncherDelay)
+        .andThen(new LaunchNote(m_launcher)).alongWith(new RunIntake(m_Intake, 1)))
+        .onFalse(new InstantCommand(() -> m_launcher.stop(), m_launcher));
 // Set up a binding to run the intake command while the operator is pressing and holding the
     // left Bumper
     
