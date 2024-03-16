@@ -19,7 +19,7 @@ public class DriveForward extends SequentialCommandGroup {
    * @param subsystem The subsystem used by this command.
    */
   public DriveForward(DriveTrain driveTrain) {
-    DoubleSupplier throttle = () -> -0.4;
+    DoubleSupplier throttle = () -> 0.4;
     DoubleSupplier turn = () -> 0;
 
     addCommands(new SetArcadeDrive(driveTrain, throttle, turn).withTimeout(5),
